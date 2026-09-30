@@ -1,0 +1,681 @@
+/*
+ * Sauron Developer Experience (DX) — Native Frappe Desk Theme
+ * Blends seamlessly with Frappe & ERPNext light/dark design systems.
+ */
+
+#sauron-devbar-root {
+	position: fixed;
+	bottom: 20px;
+	right: 24px;
+	z-index: 1050;
+	font-family: var(--font-stack, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif);
+	font-size: var(--text-sm, 12px);
+	line-height: 1.5;
+	color: var(--text-color, #3c4257);
+	user-select: none;
+}
+
+/* Floating Circular Launcher (TanStack DevTools Style) */
+.sauron-pill-btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 44px;
+	height: 44px;
+	min-width: 44px;
+	min-height: 44px;
+	background: var(--card-bg, #ffffff) !important;
+	color: var(--heading-color, #0a2540) !important;
+	border: 1.5px solid var(--border-color, #e3e8ee) !important;
+	padding: 0 !important;
+	border-radius: 50% !important;
+	cursor: pointer;
+	box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1) !important;
+	transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+	overflow: hidden;
+}
+
+.sauron-pill-btn:hover {
+	background: var(--card-bg, #ffffff) !important;
+	border-color: #f97316 !important;
+	box-shadow: 0 8px 24px rgba(249, 115, 22, 0.28), 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+	transform: scale(1.08) translateY(-2px);
+}
+
+.sauron-pill-btn:active {
+	transform: scale(0.96);
+}
+
+.sauron-tower-icon {
+	width: 28px;
+	height: 28px;
+	display: block;
+	transition: transform 0.2s ease;
+}
+
+.sauron-pill-btn:hover .sauron-tower-icon {
+	transform: scale(1.06);
+}
+
+
+/* Main Slide-out Panel */
+.sauron-devbar-panel {
+	display: flex;
+	flex-direction: column;
+	position: absolute;
+	bottom: calc(100% + 12px);
+	right: 0;
+	width: 360px;
+	max-height: 520px;
+	background: var(--card-bg, #ffffff);
+	border: 1px solid var(--border-color, #e3e8ee);
+	border-radius: var(--border-radius-xl, 10px);
+	box-shadow: var(--shadow-lg, 0 12px 32px rgba(0, 0, 0, 0.12));
+	overflow: hidden;
+	animation: sauron-slide-up 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sauron-devbar-panel.hidden {
+	display: none !important;
+}
+
+@keyframes sauron-slide-up {
+	from {
+		opacity: 0;
+		transform: translateY(8px) scale(0.98);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+}
+
+/* Panel Header */
+.sauron-panel-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 10px 14px;
+	background: var(--subtle-accent, #f6f9fc);
+	border-bottom: 1px solid var(--border-color, #e3e8ee);
+}
+
+.sauron-header-title {
+	font-weight: 600;
+	font-size: 13px;
+	color: var(--heading-color, #0a2540);
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.sauron-badge-dev {
+	background: var(--gray-200, #e3e8ee);
+	color: var(--text-color, #3c4257);
+	font-size: 10px;
+	font-weight: 600;
+	padding: 1px 6px;
+	border-radius: var(--border-radius-sm, 4px);
+	letter-spacing: 0.2px;
+}
+
+.sauron-btn-close {
+	background: transparent;
+	border: none;
+	color: var(--text-muted, #697386);
+	font-size: 18px;
+	line-height: 1;
+	cursor: pointer;
+	padding: 2px 6px;
+	border-radius: var(--border-radius-sm, 4px);
+}
+
+.sauron-btn-close:hover {
+	color: var(--heading-color, #0a2540);
+	background: var(--gray-200, #e3e8ee);
+}
+
+/* Panel Body */
+.sauron-panel-body {
+	padding: 12px;
+	overflow-y: auto;
+	max-height: 440px;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	background: var(--card-bg, #ffffff);
+}
+
+/* Card Section */
+.sauron-section {
+	background: var(--bg-color, #f6f9fc);
+	border: 1px solid var(--border-color, #e3e8ee);
+	border-radius: var(--border-radius-md, 6px);
+	padding: 10px;
+}
+
+.sauron-section-title {
+	font-size: 11px;
+	font-weight: 600;
+	color: var(--text-muted, #697386);
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	margin-bottom: 8px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+/* User Switcher */
+.sauron-select-user {
+	width: 100%;
+	background: var(--card-bg, #ffffff);
+	border: 1px solid var(--border-color, #e3e8ee);
+	color: var(--text-color, #3c4257);
+	border-radius: var(--border-radius, 4px);
+	padding: 6px 10px;
+	font-size: 12px;
+	cursor: pointer;
+	outline: none;
+	transition: border-color 0.15s ease;
+}
+
+.sauron-select-user:focus {
+	border-color: var(--primary, #0052ff);
+	box-shadow: var(--focus-default, 0 0 0 2px rgba(0, 82, 255, 0.25));
+}
+
+/* Active Form Info */
+.sauron-form-info {
+	font-size: 11px;
+	color: var(--text-color, #3c4257);
+	background: var(--card-bg, #ffffff);
+	padding: 6px 8px;
+	border-radius: var(--border-radius-sm, 4px);
+	border: 1px solid var(--border-color, #e3e8ee);
+	margin-bottom: 8px;
+}
+
+.sauron-info-row {
+	display: flex;
+	justify-content: space-between;
+	padding: 2px 0;
+}
+
+.sauron-info-label {
+	color: var(--text-muted, #697386);
+}
+
+.sauron-info-val {
+	font-weight: 600;
+	color: var(--heading-color, #0a2540);
+}
+
+/* Actions Grid */
+.sauron-actions-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 6px;
+}
+
+.sauron-action-btn {
+	background: var(--card-bg, #ffffff);
+	border: 1px solid var(--border-color, #e3e8ee);
+	color: var(--text-color, #3c4257);
+	padding: 6px 10px;
+	border-radius: var(--border-radius, 4px);
+	font-size: 11px;
+	font-weight: 500;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	transition: all 0.12s ease;
+}
+
+.sauron-action-btn:hover {
+	background: var(--fg-hover-color, #eff3f8);
+	border-color: var(--dark-border-color, #d3d9e0);
+	color: var(--heading-color, #0a2540);
+}
+
+.sauron-action-btn.btn-dump {
+	background: var(--primary, #0052ff);
+	border-color: var(--primary, #0052ff);
+	color: #ffffff;
+	font-weight: 600;
+	grid-column: span 2;
+}
+
+.sauron-action-btn.btn-dump:hover {
+	filter: brightness(1.08);
+	box-shadow: 0 2px 6px rgba(0, 82, 255, 0.35);
+}
+
+/* IDE Code Links */
+.sauron-code-links {
+	display: flex;
+	gap: 6px;
+}
+
+.sauron-code-link {
+	flex: 1;
+	background: var(--card-bg, #ffffff);
+	border: 1px solid var(--border-color, #e3e8ee);
+	border-radius: var(--border-radius, 4px);
+	padding: 5px 8px;
+	text-align: center;
+	color: var(--primary, #0052ff);
+	font-size: 11px;
+	font-weight: 600;
+	text-decoration: none;
+	transition: all 0.12s ease;
+}
+
+.sauron-code-link:hover {
+	background: var(--fg-hover-color, #eff3f8);
+	border-color: var(--primary, #0052ff);
+	text-decoration: none;
+}
+
+.sauron-code-link.disabled {
+	opacity: 0.4;
+	pointer-events: none;
+	color: var(--text-light, #8792a2);
+	border-color: var(--border-color, #e3e8ee);
+	background: var(--disabled-control-bg, #f6f9fc);
+}
+
+.sauron-select-ide {
+	background: var(--card-bg, #ffffff) !important;
+	border: 1px solid var(--border-color, #e3e8ee) !important;
+	color: var(--heading-color, #0a2540) !important;
+	border-radius: var(--border-radius-sm, 4px);
+	padding: 1px 6px;
+	font-size: 11px;
+	font-weight: 500;
+	cursor: pointer;
+	outline: none;
+	line-height: 1.3;
+	text-transform: none;
+	transition: border-color 0.15s ease;
+}
+
+.sauron-select-ide:focus {
+	border-color: var(--primary, #0052ff) !important;
+}
+
+/* SQL & N+1 Inspector */
+.sauron-btn-text {
+	background: transparent;
+	border: none;
+	color: var(--primary, #0052ff);
+	font-size: 10px;
+	font-weight: 600;
+	cursor: pointer;
+	padding: 0;
+}
+
+.sauron-btn-text:hover {
+	text-decoration: underline;
+}
+
+.sauron-sql-badge {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	background: var(--card-bg, #ffffff);
+	border: 1px solid var(--border-color, #e3e8ee);
+	border-radius: var(--border-radius-sm, 4px);
+	padding: 6px 10px;
+	font-size: 11px;
+	color: var(--text-color, #3c4257);
+	font-weight: 500;
+}
+
+.sauron-n1-tag {
+	margin-left: auto;
+	background: #fee2e2;
+	color: #dc2626;
+	border: 1px solid #fca5a5;
+	padding: 1px 6px;
+	border-radius: 9999px;
+	font-size: 10px;
+	font-weight: 700;
+}
+
+.sauron-n1-tag.hidden {
+	display: none !important;
+}
+
+/* SQL Queries Modal Drawer */
+.sauron-sql-drawer {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 720px;
+	max-width: 90vw;
+	max-height: 80vh;
+	background: var(--card-bg, #ffffff);
+	border: 1px solid var(--border-color, #e3e8ee);
+	border-radius: var(--border-radius-xl, 10px);
+	box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+	z-index: 1060;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+.sauron-sql-drawer.hidden {
+	display: none !important;
+}
+
+.sauron-sql-drawer-backdrop {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(15, 23, 42, 0.45);
+	backdrop-filter: blur(4px);
+	z-index: 1055;
+}
+
+.sauron-sql-drawer-backdrop.hidden {
+	display: none !important;
+}
+
+.sauron-drawer-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 12px 18px;
+	background: var(--subtle-accent, #f6f9fc);
+	border-bottom: 1px solid var(--border-color, #e3e8ee);
+}
+
+.sauron-drawer-title {
+	font-size: 14px;
+	font-weight: 700;
+	color: var(--heading-color, #0a2540);
+}
+
+.sauron-drawer-body {
+	padding: 14px 18px;
+	overflow-y: auto;
+	max-height: calc(80vh - 60px);
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.sauron-n1-alert-box {
+	background: #fef2f2;
+	border: 1px solid #fecaca;
+	border-radius: var(--border-radius-md, 6px);
+	padding: 10px 14px;
+	color: #991b1b;
+	font-size: 12px;
+	line-height: 1.4;
+}
+
+.sauron-n1-alert-box strong {
+	color: #b91c1c;
+}
+
+.sauron-query-item {
+	background: var(--bg-color, #f6f9fc);
+	border: 1px solid var(--border-color, #e3e8ee);
+	border-radius: var(--border-radius-md, 6px);
+	padding: 10px 12px;
+	font-size: 12px;
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.sauron-query-item.is-n1 {
+	border-left: 3px solid #dc2626;
+	background: #fffafa;
+}
+
+.sauron-query-meta {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	font-size: 11px;
+}
+
+.sauron-query-caller {
+	color: var(--text-muted, #697386);
+	font-family: monospace;
+}
+
+.sauron-query-tags {
+	display: flex;
+	gap: 6px;
+}
+
+.sauron-tag-ms {
+	background: var(--gray-200, #e3e8ee);
+	color: var(--text-color, #3c4257);
+	padding: 1px 6px;
+	border-radius: var(--border-radius-sm, 4px);
+	font-weight: 600;
+	font-size: 10px;
+}
+
+.sauron-tag-ms.slow {
+	background: #fed7aa;
+	color: #c2410c;
+}
+
+.sauron-tag-n1 {
+	background: #fee2e2;
+	color: #dc2626;
+	padding: 1px 6px;
+	border-radius: var(--border-radius-sm, 4px);
+	font-weight: 700;
+	font-size: 10px;
+}
+
+.sauron-query-sql {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+	font-size: 11px;
+	color: var(--heading-color, #0a2540);
+	background: var(--card-bg, #ffffff);
+	padding: 8px 10px;
+	border-radius: var(--border-radius-sm, 4px);
+	border: 1px solid var(--border-color, #e3e8ee);
+	word-break: break-all;
+	white-space: pre-wrap;
+}
+
+/* Live Debug Logs Section & Drawer */
+.sauron-log-status-bar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	background: var(--card-bg, #ffffff);
+	border: 1px solid var(--border-color, #e3e8ee);
+	border-radius: var(--border-radius-sm, 4px);
+	padding: 6px 10px;
+	font-size: 11px;
+	color: var(--text-color, #3c4257);
+	font-weight: 500;
+}
+
+.sauron-log-indicator {
+	font-weight: 700;
+	font-size: 11px;
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.sauron-log-indicator.live {
+	color: #16a34a;
+}
+
+.sauron-log-indicator.paused {
+	color: #ea580c;
+}
+
+.sauron-log-drawer {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 860px;
+	max-width: 92vw;
+	height: 85vh;
+	background: var(--card-bg, #ffffff);
+	border: 1px solid var(--border-color, #e3e8ee);
+	border-radius: var(--border-radius-xl, 10px);
+	box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
+	z-index: 1060;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+.sauron-log-drawer.hidden {
+	display: none !important;
+}
+
+.sauron-drawer-actions {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.sauron-btn-pill-toggle {
+	background: var(--card-bg, #ffffff);
+	border: 1px solid var(--border-color, #e3e8ee);
+	color: var(--text-color, #3c4257);
+	padding: 4px 10px;
+	border-radius: var(--border-radius-2xl, 9999px);
+	font-size: 11px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.12s ease;
+}
+
+.sauron-btn-pill-toggle.active {
+	background: #dcfce7;
+	border-color: #86efac;
+	color: #15803d;
+}
+
+.sauron-btn-pill-toggle.paused {
+	background: #ffedd5;
+	border-color: #fed7aa;
+	color: #c2410c;
+}
+
+.sauron-filter-bar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 8px 18px;
+	background: var(--bg-color, #f6f9fc);
+	border-bottom: 1px solid var(--border-color, #e3e8ee);
+	font-size: 11px;
+}
+
+.sauron-filter-tabs {
+	display: flex;
+	gap: 4px;
+}
+
+.sauron-filter-tab {
+	background: transparent;
+	border: 1px solid transparent;
+	color: var(--text-muted, #697386);
+	padding: 3px 8px;
+	border-radius: var(--border-radius-sm, 4px);
+	cursor: pointer;
+	font-weight: 500;
+	font-size: 11px;
+	transition: all 0.12s ease;
+}
+
+.sauron-filter-tab.active {
+	background: var(--card-bg, #ffffff);
+	border-color: var(--border-color, #e3e8ee);
+	color: var(--heading-color, #0a2540);
+	font-weight: 600;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.sauron-log-stream {
+	flex: 1;
+	padding: 14px 18px;
+	overflow-y: auto;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	background: var(--card-bg, #ffffff);
+}
+
+.sauron-log-card {
+	background: var(--bg-color, #f6f9fc);
+	border: 1px solid var(--border-color, #e3e8ee);
+	border-left: 3px solid var(--primary, #0052ff);
+	border-radius: var(--border-radius-md, 6px);
+	padding: 10px 12px;
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	font-size: 12px;
+	animation: sauron-card-in 0.15s ease-out;
+}
+
+.sauron-log-card.color-green { border-left-color: #16a34a; }
+.sauron-log-card.color-red { border-left-color: #dc2626; background: #fffafa; }
+.sauron-log-card.color-purple { border-left-color: #9333ea; }
+.sauron-log-card.color-yellow { border-left-color: #ca8a04; }
+.sauron-log-card.color-orange { border-left-color: #ea580c; }
+.sauron-log-card.color-gray { border-left-color: #64748b; }
+
+@keyframes sauron-card-in {
+	from { opacity: 0; transform: translateY(4px); }
+	to { opacity: 1; transform: translateY(0); }
+}
+
+.sauron-log-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	font-size: 11px;
+}
+
+.sauron-badge-label {
+	background: var(--gray-200, #e3e8ee);
+	color: var(--heading-color, #0a2540);
+	font-weight: 600;
+	padding: 1px 6px;
+	border-radius: var(--border-radius-sm, 4px);
+	font-size: 10px;
+	text-transform: uppercase;
+	letter-spacing: 0.3px;
+}
+
+.sauron-log-payload-box {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+	font-size: 11px;
+	color: var(--heading-color, #0a2540);
+	background: var(--card-bg, #ffffff);
+	padding: 8px 10px;
+	border-radius: var(--border-radius-sm, 4px);
+	border: 1px solid var(--border-color, #e3e8ee);
+	overflow-x: auto;
+	white-space: pre-wrap;
+	word-break: break-all;
+	max-height: 240px;
+}
+
+
+

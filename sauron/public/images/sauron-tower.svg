@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">
+  <defs>
+    <!-- Fiery glow filters -->
+    <filter id="eye-glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="3" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+    <radialGradient id="eye-flame" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#fffbeb" />
+      <stop offset="25%" stop-color="#fef08a" />
+      <stop offset="50%" stop-color="#f97316" />
+      <stop offset="85%" stop-color="#dc2626" />
+      <stop offset="100%" stop-color="#7f1d1d" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="tower-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#334155" />
+      <stop offset="50%" stop-color="#1e293b" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+    <linearGradient id="spire-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#475569" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+  </defs>
+
+  <!-- Tower of Sauron (Barad-dûr) Base & Bastions -->
+  <g id="tower-structure">
+    <!-- Bottom base -->
+    <path d="M15 95 L25 80 L35 84 L40 70 L60 70 L65 84 L75 80 L85 95 Z" fill="url(#tower-grad)" />
+    
+    <!-- Buttresses & lower tower body -->
+    <path d="M26 80 L32 58 L38 60 L42 46 L58 46 L62 60 L68 58 L74 80 Z" fill="#1e293b" />
+    <path d="M36 78 L42 52 L58 52 L64 78 Z" fill="#0f172a" />
+
+    <!-- Mid tower tier -->
+    <path d="M38 52 L43 32 L57 32 L62 52 Z" fill="url(#tower-grad)" />
+    <path d="M44 48 L46 34 L54 34 L56 48 Z" fill="#090d16" />
+
+    <!-- Left Crown Spire -->
+    <path d="M36 36 L43 14 L46 22 L45 34 Z" fill="url(#spire-grad)" />
+    <path d="M39 34 L43 14 L42 32 Z" fill="#64748b" opacity="0.6" />
+
+    <!-- Right Crown Spire -->
+    <path d="M64 36 L57 14 L54 22 L55 34 Z" fill="url(#spire-grad)" />
+    <path d="M61 34 L57 14 L58 32 Z" fill="#475569" opacity="0.4" />
+
+    <!-- Center Horns -->
+    <polygon points="46,32 48,22 50,30" fill="#334155" />
+    <polygon points="54,32 52,22 50,30" fill="#1e293b" />
+  </g>
+
+  <!-- The Great Eye of Sauron (Hovering at the summit between horns) -->
+  <g id="eye-of-sauron" transform="translate(50, 24)">
+    <!-- Outer fiery flares -->
+    <ellipse cx="0" cy="0" rx="18" ry="11" fill="url(#eye-flame)" filter="url(#eye-glow)" />
+
+    <!-- Secondary flare halo -->
+    <path d="M -16 0 Q -7 -9 0 -11 Q 7 -9 16 0 Q 7 9 0 11 Q -7 9 -16 0 Z" fill="#ea580c" opacity="0.85" />
+    <path d="M -13 0 Q -5 -7 0 -8 Q 5 -7 13 0 Q 5 7 0 8 Q -5 7 -13 0 Z" fill="#facc15" />
+    <path d="M -8 0 Q -3 -5 0 -6 Q 3 -5 8 0 Q 3 5 0 6 Q -3 5 -8 0 Z" fill="#fffbeb" />
+
+    <!-- The Slit Pupil -->
+    <path d="M -1.5 -8 Q 0 -5 1.5 0 Q 0 5 -1.5 8 Q -0.5 4 -0.5 0 Q -0.5 -4 -1.5 -8 Z" fill="#0f172a" />
+    <ellipse cx="0" cy="0" rx="1.5" ry="6.5" fill="#05070a" />
+  </g>
+</svg>

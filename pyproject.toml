@@ -1,0 +1,23 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "sauron"
+authors = [
+    { name = "Brightside", email = "dev@brightside.local"}
+]
+description = "Terminal-based real-time debugging suite for Frappe and Python applications"
+requires-python = ">=3.10"
+readme = "README.md"
+dynamic = ["version"]
+dependencies = [
+    "click>=8.0.0",
+    "rich>=13.0.0",
+]
+
+[project.scripts]
+sauron = "sauron.cli:main"
+
+[tool.flit.module]
+name = "sauron"
