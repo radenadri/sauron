@@ -9,12 +9,13 @@ import sys
 import time
 import click
 
+from sauron import __version__
 from sauron.client import DEFAULT_HOST, DEFAULT_PORT, SauronClient
 from sauron.server import start_server
 
 
 @click.group()
-@click.version_option(version="0.1.0", prog_name="sauron")
+@click.version_option(version=__version__, prog_name="sauron")
 def main() -> None:
 	"""👁  Sauron: Terminal-based Real-time Debugger for Frappe & Python."""
 	pass
