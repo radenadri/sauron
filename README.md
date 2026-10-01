@@ -77,6 +77,9 @@ Press `Cmd+Shift+S` (macOS) or `Ctrl+Shift+S` (Linux/Windows) anywhere inside Fr
   - Real-time database execution counts and latency in milliseconds.
   - Automated N+1 query pattern detection with instant visual warning badges.
   - Drill-down drawer showing full query syntax and caller stack traces.
+- **Bench Operations (Quick Actions)**:
+  - **Clear Cache (`bench clear-cache`)**: 1-click purge of Redis document caches, user defaults, and website routes with instant toast feedback.
+  - **Run Migrate (`bench migrate`)**: Spawns asynchronous background migration subprocess with safety confirmation dialog and mutex lock. Real-time stdout/stderr lines are streamed line-by-line into both the Live Log Viewer and Terminal Watcher without Gunicorn request timeouts.
 
 ### 2. In-Desk Live Log Streamer
 Click **"Open Log Viewer"** from the DevBar:

@@ -889,11 +889,44 @@
 							</button>
 						</div>
 					</div>
+
+					<!-- 6. Bench Operations -->
+					<div class="sauron-section" id="sauron-bench-section">
+						<div class="sauron-section-title">
+							<span>Bench Operations</span>
+							<span class="sauron-badge-status" id="sauron-bench-status">Idle</span>
+						</div>
+						<div class="sauron-actions-grid" style="margin-top: 8px;">
+							<button class="sauron-action-btn" id="sauron-btn-clear-cache" title="Clear Redis & Website Cache">
+								<span>Clear Cache</span>
+							</button>
+							<button class="sauron-action-btn btn-warning" id="sauron-btn-run-migrate" title="Run Bench Migrate in Background">
+								<span>Run Migrate</span>
+							</button>
+						</div>
+					</div>
 				</div>
 			</div>
 
 			<!-- Shared Backdrop -->
 			<div class="sauron-sql-drawer-backdrop hidden" id="sauron-shared-backdrop"></div>
+
+			<!-- Migrate Confirmation Modal -->
+			<div class="sauron-modal-backdrop hidden" id="sauron-migrate-modal">
+				<div class="sauron-modal-box">
+					<div class="sauron-modal-title">
+						<span>⚠️ Run Bench Migrate?</span>
+					</div>
+					<div class="sauron-modal-desc">
+						This will execute pending database patches and sync schemas for site <b>${ctx.site || "current site"}</b> in a background process.<br><br>
+						Output will be streamed live into Sauron Live Log Viewer.
+					</div>
+					<div class="sauron-modal-actions">
+						<button class="sauron-btn-cancel" id="sauron-migrate-cancel">Cancel</button>
+						<button class="sauron-btn-confirm" id="sauron-migrate-confirm">Confirm & Run</button>
+					</div>
+				</div>
+			</div>
 
 			<!-- Live Log Streamer Modal Drawer -->
 			<div class="sauron-log-drawer hidden" id="sauron-log-drawer">
@@ -1195,6 +1228,177 @@
 				});
 			});
 		}
+
+		// Clear Cache Button
+		const btnClearCache = document.getElementById("sauron-btn-clear-cache");
+		if (btnClearCache) {
+			btnClearCache.addEventListener("click", () => {
+				btnClearCache.disabled = true;
+				const origHtml = btnClearCache.innerHTML;
+				btnClearCache.innerHTML = "<span>Clearing...</span>";
+
+				frappe.call({
+					method: "sauron.api.clear_bench_cache",
+					callback: function (r) {
+						btnClearCache.disabled = false;
+						btnClearCache.innerHTML = origHtml;
+						if (r && r.message && r.message.success) {
+							frappe.show_alert(
+								{
+									message: __(`Cache cleared for ${r.message.site}! <a href="javascript:window.location.reload()" style="color: #0052ff; font-weight: bold; margin-left: 8px; text-decoration: underline;">Reload Page</a>`),
+									indicator: "green",
+								},
+								5
+							);
+							pollLiveLogs();
+						}
+					},
+					error: function () {
+						btnClearCache.disabled = false;
+						btnClearCache.innerHTML = origHtml;
+					},
+				});
+			});
+		}
+
+		// Run Migrate Modal & Button Handling
+		const btnRunMigrate = document.getElementById("sauron-btn-run-migrate");
+		const migrateModal = document.getElementById("sauron-migrate-modal");
+		const migrateCancel = document.getElementById("sauron-migrate-cancel");
+		const migrateConfirm = document.getElementById("sauron-migrate-confirm");
+		const benchStatus = document.getElementById("sauron-bench-status");
+		let migratePollTimer = null;
+
+		function setMigrateRunningState(isRunning) {
+			if (btnRunMigrate) {
+				btnRunMigrate.disabled = isRunning;
+				btnRunMigrate.innerHTML = isRunning ? "<span>Migrating...</span>" : "<span>Run Migrate</span>";
+			}
+			if (benchStatus) {
+				if (isRunning) {
+					benchStatus.classList.add("running");
+					benchStatus.innerText = "Migrating...";
+				} else {
+					benchStatus.classList.remove("running");
+					benchStatus.innerText = "Idle";
+				}
+			}
+		}
+
+		function startMigrateTracking() {
+			if (migratePollTimer) clearInterval(migratePollTimer);
+			migratePollTimer = setInterval(pollMigrateStatus, 1500);
+		}
+
+		function stopMigrateTracking() {
+			if (migratePollTimer) {
+				clearInterval(migratePollTimer);
+				migratePollTimer = null;
+			}
+		}
+
+		function pollMigrateStatus() {
+			frappe.call({
+				method: "sauron.api.get_migrate_status",
+				silent: true,
+				callback: function (r) {
+					if (r && r.message) {
+						const status = r.message;
+						if (status.is_running) {
+							setMigrateRunningState(true);
+							pollLiveLogs();
+						} else {
+							stopMigrateTracking();
+							setMigrateRunningState(false);
+							pollLiveLogs();
+							if (status.returncode === 0) {
+								frappe.show_alert(
+									{
+										message: __("✓ Bench migration completed successfully!"),
+										indicator: "green",
+									},
+									5
+								);
+							} else if (status.returncode !== null) {
+								frappe.show_alert(
+									{
+										message: __(`✗ Migration failed with code ${status.returncode}`),
+										indicator: "red",
+									},
+									6
+								);
+							}
+						}
+					}
+				},
+			});
+		}
+
+		if (btnRunMigrate && migrateModal) {
+			btnRunMigrate.addEventListener("click", () => {
+				if (btnRunMigrate.disabled) return;
+				migrateModal.classList.remove("hidden");
+			});
+		}
+
+		if (migrateCancel && migrateModal) {
+			migrateCancel.addEventListener("click", () => {
+				migrateModal.classList.add("hidden");
+			});
+		}
+
+		if (migrateConfirm && migrateModal) {
+			migrateConfirm.addEventListener("click", () => {
+				migrateModal.classList.add("hidden");
+				setMigrateRunningState(true);
+
+				// Automatically open Live Log Viewer Drawer
+				renderLogStream();
+				if (logDrawer) logDrawer.classList.remove("hidden");
+				if (backdrop) backdrop.classList.remove("hidden");
+				startLogPolling();
+
+				frappe.call({
+					method: "sauron.api.run_bench_migrate",
+					callback: function (r) {
+						if (r && r.message && r.message.started) {
+							frappe.show_alert(
+								{
+									message: __("Migration started in background. Streaming logs..."),
+									indicator: "blue",
+								},
+								4
+							);
+							startMigrateTracking();
+						} else if (r && r.message && !r.message.started) {
+							frappe.show_alert(
+								{
+									message: r.message.message || __("Migration could not be started."),
+									indicator: "orange",
+								},
+								4
+							);
+							setMigrateRunningState(false);
+						}
+					},
+					error: function () {
+						setMigrateRunningState(false);
+					},
+				});
+			});
+		}
+
+		// Initial check if migration was already in progress (e.g. after refresh)
+		frappe.call({
+			method: "sauron.api.get_migrate_status",
+			silent: true,
+			callback: function (r) {
+				if (r && r.message && r.message.is_running) {
+					setMigrateRunningState(true);
+					startMigrateTracking();
+				}
+			},
+		});
 	}
 
 	// ==========================================

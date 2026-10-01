@@ -7,6 +7,10 @@ Guarded strictly by developer_mode.
 from __future__ import annotations
 
 import os
+import subprocess
+import sys
+import threading
+import time
 from typing import Any
 
 import frappe
@@ -237,6 +241,211 @@ def push_browser_log(payload: str | dict[str, Any]) -> dict[str, Any]:
 	from sauron.log_buffer import record_log
 	record_log(payload)
 	return {"success": True}
+
+
+# Thread-safe migration state tracker
+_migration_lock = threading.Lock()
+_migration_state = {
+	"is_running": False,
+	"site": "",
+	"started_at": 0.0,
+	"returncode": None,
+	"last_line": "",
+}
+
+
+def _run_migration_worker(site: str) -> None:
+	"""
+	Worker thread running bench migrate in a background subprocess.
+	Streams stdout/stderr line-by-line to Sauron In-Desk Log Buffer and Terminal Watcher.
+	"""
+	global _migration_state
+	from sauron.log_buffer import record_log
+
+	bench_path = frappe.utils.get_bench_path()
+	sites_dir = os.path.join(bench_path, "sites")
+
+	cmd = [sys.executable, "-m", "frappe.utils.bench_helper", "frappe", "--site", site, "migrate"]
+
+	record_log({
+		"type": "custom",
+		"label": "Migrate",
+		"color": "yellow",
+		"content": f"🚀 Starting 'bench --site {site} migrate'...",
+		"origin": {"file": "sauron.api", "line_number": 0, "function_name": "run_bench_migrate"},
+		"timestamp": time.time(),
+	})
+	sauron(f"🚀 Starting 'bench --site {site} migrate'...").yellow().label("Migrate")
+
+	try:
+		env = os.environ.copy()
+		env["PYTHONUNBUFFERED"] = "1"
+
+		proc = subprocess.Popen(
+			cmd,
+			cwd=sites_dir,
+			stdout=subprocess.PIPE,
+			stderr=subprocess.STDOUT,
+			text=True,
+			bufsize=1,
+			env=env,
+		)
+
+		if proc.stdout:
+			for raw_line in proc.stdout:
+				line = raw_line.strip()
+				if not line:
+					continue
+
+				_migration_state["last_line"] = line
+
+				# Determine card badge color based on log message
+				color = "blue"
+				lowered = line.lower()
+				if "error" in lowered or "fail" in lowered or "traceback" in lowered:
+					color = "red"
+				elif "executing" in lowered or "syncing" in lowered or "migrating" in lowered:
+					color = "purple"
+				elif "success" in lowered or "done" in lowered or "completed" in lowered:
+					color = "green"
+
+				record_log({
+					"type": "custom",
+					"label": "Migrate",
+					"color": color,
+					"content": line,
+					"origin": {"file": "sauron.api", "line_number": 0, "function_name": "bench_helper"},
+					"timestamp": time.time(),
+				})
+				sauron(line).color(color).label("Migrate")
+
+		proc.wait()
+		returncode = proc.returncode
+
+		with _migration_lock:
+			_migration_state["is_running"] = False
+			_migration_state["returncode"] = returncode
+
+		if returncode == 0:
+			msg = f"✓ Migration for {site} completed successfully."
+			record_log({
+				"type": "custom",
+				"label": "Migrate Done",
+				"color": "green",
+				"content": msg,
+				"origin": {"file": "sauron.api", "line_number": 0, "function_name": "run_bench_migrate"},
+				"timestamp": time.time(),
+			})
+			sauron(msg).green().label("Migrate Done")
+		else:
+			msg = f"✗ Migration for {site} failed with exit code {returncode}."
+			record_log({
+				"type": "custom",
+				"label": "Migrate Error",
+				"color": "red",
+				"content": msg,
+				"origin": {"file": "sauron.api", "line_number": 0, "function_name": "run_bench_migrate"},
+				"timestamp": time.time(),
+			})
+			sauron(msg).red().label("Migrate Error")
+
+	except Exception as e:
+		with _migration_lock:
+			_migration_state["is_running"] = False
+			_migration_state["returncode"] = -1
+			_migration_state["last_line"] = str(e)
+
+		err_msg = f"Exception during migration: {e}"
+		record_log({
+			"type": "exception",
+			"label": "Migrate Error",
+			"color": "red",
+			"content": {"type": type(e).__name__, "message": str(e), "traceback": ""},
+			"origin": {"file": "sauron.api", "line_number": 0, "function_name": "run_bench_migrate"},
+			"timestamp": time.time(),
+		})
+		sauron(err_msg).red().label("Migrate Exception")
+
+
+@frappe.whitelist()
+def clear_bench_cache() -> dict[str, Any]:
+	"""
+	Clear Redis cache, doctype cache, and website cache.
+	Strictly allowed only when developer_mode == 1.
+	"""
+	if not is_dev_mode_allowed():
+		frappe.throw(_("Clear cache via DevBar is only allowed in Developer Mode."), frappe.PermissionError)
+
+	from frappe.website.utils import clear_website_cache
+
+	frappe.clear_cache()
+	clear_website_cache()
+
+	# Also log to Sauron
+	sauron({"action": "clear_cache", "site": frappe.local.site}).green().label("Bench Cache Cleared")
+
+	return {
+		"success": True,
+		"site": frappe.local.site,
+		"message": _("Cache cleared successfully for site: {0}").format(frappe.local.site),
+	}
+
+
+@frappe.whitelist()
+def run_bench_migrate() -> dict[str, Any]:
+	"""
+	Trigger bench migrate for the active site in a background thread.
+	Strictly allowed only when developer_mode == 1.
+	"""
+	if not is_dev_mode_allowed():
+		frappe.throw(_("Migration via DevBar is only allowed in Developer Mode."), frappe.PermissionError)
+
+	global _migration_state
+	site = frappe.local.site
+
+	with _migration_lock:
+		if _migration_state["is_running"]:
+			return {
+				"started": False,
+				"is_running": True,
+				"site": _migration_state["site"],
+				"message": _("Migration is already in progress for site: {0}").format(_migration_state["site"]),
+			}
+
+		_migration_state["is_running"] = True
+		_migration_state["site"] = site
+		_migration_state["started_at"] = time.time()
+		_migration_state["returncode"] = None
+		_migration_state["last_line"] = "Starting migration process..."
+
+	thread = threading.Thread(target=_run_migration_worker, args=(site,), daemon=True)
+	thread.start()
+
+	return {
+		"started": True,
+		"is_running": True,
+		"site": site,
+		"message": _("Migration started in background for site: {0}").format(site),
+	}
+
+
+@frappe.whitelist()
+def get_migrate_status() -> dict[str, Any]:
+	"""
+	Get current status of background migration.
+	"""
+	if not is_dev_mode_allowed():
+		return {"is_running": False}
+
+	with _migration_lock:
+		elapsed = round(time.time() - _migration_state["started_at"], 1) if _migration_state["is_running"] else 0.0
+		return {
+			"is_running": _migration_state["is_running"],
+			"site": _migration_state["site"],
+			"elapsed_seconds": elapsed,
+			"returncode": _migration_state["returncode"],
+			"last_line": _migration_state["last_line"],
+		}
 
 
 def is_dev_mode_allowed() -> bool:

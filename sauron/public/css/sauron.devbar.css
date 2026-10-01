@@ -677,5 +677,137 @@
 	max-height: 240px;
 }
 
+/* Bench Operations Styles */
+.sauron-action-btn.btn-warning {
+	background: #fff7ed;
+	border-color: #fdba74;
+	color: #c2410c;
+	font-weight: 600;
+}
+
+.sauron-action-btn.btn-warning:hover:not(:disabled) {
+	background: #ea580c;
+	border-color: #ea580c;
+	color: #ffffff;
+	box-shadow: 0 2px 6px rgba(234, 88, 12, 0.35);
+}
+
+.sauron-action-btn:disabled {
+	opacity: 0.55 !important;
+	cursor: not-allowed !important;
+	pointer-events: none;
+}
+
+.sauron-badge-status {
+	font-size: 10px;
+	padding: 2px 6px;
+	border-radius: 10px;
+	background: var(--subtle-accent, #f1f5f9);
+	color: var(--text-muted, #64748b);
+	font-weight: 500;
+}
+
+.sauron-badge-status.running {
+	background: #fef3c7;
+	color: #b45309;
+	font-weight: 600;
+	animation: sauron-pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes sauron-pulse {
+	0%, 100% { opacity: 1; }
+	50% { opacity: 0.55; }
+}
+
+/* Modal Confirmation Dialog */
+.sauron-modal-backdrop {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	background: rgba(15, 23, 42, 0.45);
+	backdrop-filter: blur(2px);
+	z-index: 1060;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	animation: sauron-fade-in 0.15s ease-out;
+}
+
+.sauron-modal-backdrop.hidden {
+	display: none !important;
+}
+
+.sauron-modal-box {
+	background: var(--card-bg, #ffffff);
+	border: 1px solid var(--border-color, #e2e8f0);
+	border-radius: var(--border-radius-lg, 8px);
+	box-shadow: var(--shadow-xl, 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.04));
+	width: 90%;
+	max-width: 380px;
+	padding: 16px 18px;
+	animation: sauron-slide-up 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sauron-modal-title {
+	font-size: 14px;
+	font-weight: 700;
+	color: var(--heading-color, #0f172a);
+	margin-bottom: 8px;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.sauron-modal-desc {
+	font-size: 12px;
+	line-height: 1.5;
+	color: var(--text-color, #475569);
+	margin-bottom: 16px;
+}
+
+.sauron-modal-desc b {
+	color: var(--heading-color, #0f172a);
+}
+
+.sauron-modal-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+}
+
+.sauron-btn-cancel {
+	background: var(--subtle-accent, #f1f5f9);
+	border: 1px solid var(--border-color, #e2e8f0);
+	color: var(--text-color, #475569);
+	padding: 6px 12px;
+	border-radius: var(--border-radius, 4px);
+	font-size: 11px;
+	font-weight: 500;
+	cursor: pointer;
+}
+
+.sauron-btn-cancel:hover {
+	background: var(--fg-hover-color, #e2e8f0);
+}
+
+.sauron-btn-confirm {
+	background: #ea580c;
+	border: 1px solid #ea580c;
+	color: #ffffff;
+	padding: 6px 14px;
+	border-radius: var(--border-radius, 4px);
+	font-size: 11px;
+	font-weight: 600;
+	cursor: pointer;
+	box-shadow: 0 1px 3px rgba(234, 88, 12, 0.3);
+}
+
+.sauron-btn-confirm:hover {
+	background: #c2410c;
+	border-color: #c2410c;
+}
+
 
 
